@@ -98,11 +98,13 @@ button.chip{border:1.5px dashed #9fb3b0;background:#fff}
 .steps b{display:block;font-size:15.5px}
 .steps p{font-size:14px;color:var(--sub);text-wrap:pretty}
 .tag{background:var(--warn-bg);border-radius:14px;padding:12px 14px;color:var(--warn);font-weight:700;font-size:14.5px;margin-bottom:12px;text-wrap:balance}
-.shot{position:relative;border-radius:14px;overflow:hidden;margin-bottom:10px;background:#ccd}
+.gs{margin-bottom:16px}
+.gs-h{display:flex;gap:10px;align-items:flex-start;margin-bottom:8px}
+.gs-h i{flex:0 0 28px;height:28px;border-radius:50%;background:var(--teal);color:#fff;font-style:normal;font-weight:800;display:grid;place-items:center;font-size:14.5px}
+.gs-h b{display:block;font-size:15.5px;line-height:1.4}
+.gs-h p{font-size:13.5px;color:var(--sub);margin:1px 0 0;text-wrap:pretty}
+.shot{border-radius:14px;overflow:hidden;background:#ccd}
 .shot img{display:block;width:100%}
-.shot span{position:absolute;left:10px;top:10px;background:rgba(28,42,45,.86);color:#fff;font-size:13px;font-weight:700;padding:5px 11px;border-radius:99px}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.two .shot{margin:0}.two img{height:100%;object-fit:cover}
 dl{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;font-size:14px}
 dt{color:var(--sub);font-weight:600}dd{font-weight:600}
 footer{font-size:12px;color:#93a2a4;text-align:center;padding:6px 16px 0}
@@ -245,15 +247,17 @@ function listView() {
     ${PW ? '' : `<p style="text-align:center"><button class="link" data-a="adminOn">관리자 모드</button></p>`}`;
 }
 
-const tagGuide = `<div class="tag">2공장 공장동(본동) 출입구 왼쪽<br>근태 리더기에 출근 태깅을 꼭 해 주세요</div>
-  <div class="shot"><img src="img/guide1.jpg" alt="2공장 항공 사진, 공장동 출입구 위치"><span>① 주차 후 공장동 출입구로</span></div>
-  <div class="two"><div class="shot"><img src="img/guide2.jpg" alt="공장동 출입구"><span>② 이 문으로 입장</span></div>
-  <div class="shot"><img src="img/guide3.jpg" alt="출입구 안 왼쪽 근태 리더기"><span>③ 왼쪽 리더기 태깅</span></div></div>`;
+const gstep = (n, t, d, img, alt) => `<div class="gs"><div class="gs-h"><i>${n}</i><div><b>${t}</b><p>${d}</p></div></div><div class="shot"><img src="img/${img}" alt="${alt}"></div></div>`;
+const tagGuide = `<div class="tag">셔틀 이용 시 필히<br>2공장 근태 리더기에 출근을 태깅해 주세요</div>
+  <p class="note" style="margin:0 0 14px">본사가 아닌 2공장에서 태깅한 뒤 셔틀에 탑승합니다</p>
+  ${gstep(1, '2공장 공장동(본동) 출입구로 갑니다', '주차 후 빨간 화살표가 가리키는 출입구로 이동합니다', 'guide1.jpg', '2공장 항공 사진, 공장동 출입구 위치')}
+  ${gstep(2, '출입구로 들어갑니다', '빨간 점선으로 표시한 유리문입니다', 'guide2.jpg', '공장동 출입구')}
+  ${gstep(3, '왼쪽 벽 근태 리더기에 태깅합니다', '빨간 점선으로 표시한 기기가 근태 리더기입니다', 'guide3.jpg', '출입구 안 왼쪽 벽의 근태 리더기')}`;
 function guideView() {
   return `<h2>이용 방법</h2><p class="lead">본사 주차 통제일에만 운행합니다</p>
   <div class="card"><ol class="steps">
     <li><b>운행 전날 17시까지 신청</b><p>신청 화면에서 날짜를 확인하고 신청합니다. 월요일 운행분은 토요일 17시에 마감됩니다.</p></li>
-    <li><b>당일 2공장 도착, 출근 태깅</b><p>08시 50분 전에 도착합니다.<br>공장동 출입구 왼쪽 근태 리더기에 태깅합니다.</p></li>
+    <li><b>당일 2공장 도착, 출근 태깅</b><p>08시 50분 전에 도착합니다.<br>2공장 근태 리더기에 출근을 꼭 태깅합니다.</p></li>
     <li><b>08시 50분 2공장 출발</b><p>신청자가 모두 모이면 함께 본사로 이동합니다. 1회만 운행합니다.</p></li>
     <li><b>17시 10분까지 퇴근 시간 지정</b><p>18시 20분, 19시 중에서 고릅니다. 신청할 때 미리 골라도 됩니다.</p></li>
     <li><b>정한 시간에 본사에서 탑승</b><p>2공장까지 이동합니다.</p></li>
