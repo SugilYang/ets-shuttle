@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#009381">
+<title>ETS 2공장 셔틀</title>
+<link rel="icon" href="img/logo.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{--teal:#009381;--teal-d:#00705f;--mint:#e3f3f0;--ink:#1c2a2d;--sub:#66777a;--line:#dbe5e3;--bg:#eef3f2;--warn:#c2410c;--warn-bg:#fff1e6}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:Pretendard,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;word-break:keep-all;overflow-wrap:anywhere;-webkit-tap-highlight-color:transparent}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #7fd1c4;outline-offset:2px}
+[hidden]{display:none!important}
+.wrap{max-width:520px;margin:0 auto;min-height:100dvh;padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+
+header{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;padding:10px 16px}
+header img{height:26px}
+header h1{font-size:16px;font-weight:700;letter-spacing:-.02em;flex:1;border-left:1px solid var(--line);padding-left:10px}
+.who{font-size:13px;color:var(--sub);text-align:right;line-height:1.3}
+.link{font-size:13px;color:var(--teal-d);font-weight:600;padding:6px 4px;text-decoration:underline;text-underline-offset:3px}
+#bar{position:fixed;top:0;left:0;height:3px;width:100%;background:linear-gradient(90deg,var(--teal),#7fd1c4,var(--teal));background-size:200% 100%;animation:mv 1s linear infinite;z-index:20}
+@keyframes mv{to{background-position:-200% 0}}
+
+main{padding:16px}
+h2{font-size:21px;font-weight:800;letter-spacing:-.03em;margin:6px 2px 4px}
+.lead{font-size:14px;color:var(--sub);margin:0 2px 16px;text-wrap:pretty}
+.adminbar{background:var(--ink);color:#fff;border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;margin-bottom:14px}
+.adminbar span{flex:1}
+.adminbar button{color:#9fe3d8;font-size:13px;font-weight:600}
+
+/* 탑승권 */
+.tk{position:relative;background:#fff;border-radius:18px;margin-bottom:16px;box-shadow:0 1px 0 var(--line),0 10px 24px -18px rgba(0,60,50,.45)}
+.tk.hl{outline:3px solid var(--teal);outline-offset:3px}
+.tk-top{padding:16px 18px 14px}
+.tk-head{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.tk-date{font-size:17px;font-weight:800;letter-spacing:-.02em;flex:1}
+.st{font-size:12px;font-weight:700;padding:4px 10px;border-radius:99px;background:var(--mint);color:var(--teal-d)}
+.st.done{background:var(--teal);color:#fff}
+.st.end{background:#eceff0;color:var(--sub)}
+.route{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px}
+.route b{display:block;font-size:30px;font-weight:800;letter-spacing:-.04em;line-height:1.1;font-variant-numeric:tabular-nums}
+.route small{font-size:12.5px;color:var(--sub)}
+.route .to{text-align:right}
+.route .to b{font-size:22px}
+.track{height:2px;background:repeating-linear-gradient(90deg,var(--teal) 0 6px,transparent 6px 12px);position:relative}
+.track::before,.track::after{content:"";position:absolute;top:-4px;width:10px;height:10px;border-radius:50%;background:#fff;border:2px solid var(--teal)}
+.track::before{left:-2px}.track::after{right:-2px;background:var(--teal)}
+.cut{position:relative;border-top:2px dashed var(--line);margin:0 14px}
+.cut::before,.cut::after{content:"";position:absolute;top:-11px;width:20px;height:20px;border-radius:50%;background:var(--bg)}
+.cut::before{left:-24px}.cut::after{right:-24px}
+.tk-bot{padding:14px 18px 16px}
+.lbl{font-size:13px;font-weight:700;color:var(--sub);margin-bottom:8px;display:flex;justify-content:space-between;gap:8px}
+.lbl em{font-style:normal;font-weight:500}
+.seg{display:flex;gap:8px}
+.seg button{flex:1;padding:11px 4px;border-radius:12px;border:1.5px solid var(--line);font-weight:700;font-size:15px;background:#fff;font-variant-numeric:tabular-nums}
+.seg button.on{background:var(--teal);border-color:var(--teal);color:#fff}
+.seg button:disabled{opacity:.55;cursor:default}
+.btn{display:block;width:100%;padding:14px;border-radius:14px;background:var(--teal);color:#fff;font-weight:700;font-size:16px;margin-top:12px}
+.btn:active{background:var(--teal-d)}
+.btn.ghost{background:#fff;color:var(--sub);border:1.5px solid var(--line);font-size:14px;padding:11px}
+.btn.dark{background:var(--ink)}
+.note{font-size:13px;color:var(--sub);margin-top:10px;text-wrap:pretty}
+.note.warn{background:var(--warn-bg);color:var(--warn);padding:10px 12px;border-radius:10px;font-weight:600}
+.empty{background:#fff;border-radius:18px;padding:36px 22px;text-align:center;color:var(--sub);font-size:14.5px;text-wrap:balance}
+.empty b{display:block;color:var(--ink);font-size:17px;margin-bottom:6px}
+
+/* 명단 */
+.card{background:#fff;border-radius:18px;padding:16px 18px;margin-bottom:16px}
+.card h3{font-size:17px;font-weight:800;letter-spacing:-.02em;display:flex;align-items:baseline;gap:8px}
+.card h3 small{font-size:13px;font-weight:600;color:var(--sub)}
+.grp{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.grp-h{display:flex;justify-content:space-between;font-size:14px;font-weight:700;margin-bottom:8px}
+.grp-h span{color:var(--teal-d);font-variant-numeric:tabular-nums}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:14px;padding:6px 11px;border-radius:99px;background:var(--bg);font-weight:600}
+.chip i{font-style:normal;font-weight:400;color:var(--sub);font-size:12.5px;margin-left:3px}
+.chip.me{background:var(--mint);color:var(--teal-d)}
+button.chip{border:1.5px dashed #9fb3b0;background:#fff}
+.none{font-size:13.5px;color:#9aa8aa}
+.tools{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);display:grid;gap:8px}
+.row{display:flex;gap:8px}
+.row>*{flex:1;min-width:0}
+.in{width:100%;padding:12px;border-radius:12px;border:1.5px solid var(--line);background:#fff;font-size:15px}
+.sm{padding:11px 8px;border-radius:12px;font-size:14px;font-weight:700;border:1.5px solid var(--line);background:#fff}
+.sm.pri{background:var(--teal);border-color:var(--teal);color:#fff}
+.sm.red{color:#b42318;border-color:#f3c9c4}
+
+/* 이용 방법 */
+.steps{list-style:none;counter-reset:s}
+.steps li{counter-increment:s;position:relative;padding:0 0 18px 44px}
+.steps li::before{content:counter(s);position:absolute;left:0;top:0;width:30px;height:30px;border-radius:50%;background:var(--teal);color:#fff;font-weight:800;display:grid;place-items:center;font-size:15px}
+.steps li:not(:last-child)::after{content:"";position:absolute;left:14px;top:34px;bottom:4px;width:2px;background:var(--line)}
+.steps b{display:block;font-size:15.5px}
+.steps p{font-size:14px;color:var(--sub);text-wrap:pretty}
+.tag{background:var(--warn-bg);border-radius:14px;padding:12px 14px;color:var(--warn);font-weight:700;font-size:14.5px;margin-bottom:12px;text-wrap:balance}
+.shot{position:relative;border-radius:14px;overflow:hidden;margin-bottom:10px;background:#ccd}
+.shot img{display:block;width:100%}
+.shot span{position:absolute;left:10px;top:10px;background:rgba(28,42,45,.86);color:#fff;font-size:13px;font-weight:700;padding:5px 11px;border-radius:99px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.two .shot{margin:0}.two img{height:100%;object-fit:cover}
+dl{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;font-size:14px}
+dt{color:var(--sub);font-weight:600}dd{font-weight:600}
+footer{font-size:12px;color:#93a2a4;text-align:center;padding:6px 16px 0}
+
+nav{position:fixed;bottom:0;left:0;right:0;z-index:5;background:#fff;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav div{max-width:520px;margin:0 auto;display:flex}
+nav button{flex:1;padding:13px 4px 12px;font-size:14px;font-weight:700;color:#8a999b;position:relative}
+nav button.on{color:var(--teal-d)}
+nav button.on::before{content:"";position:absolute;top:-1px;left:28%;right:28%;height:3px;border-radius:0 0 3px 3px;background:var(--teal)}
+
+/* 로그인 */
+.login{min-height:100dvh;display:grid;place-items:center;padding:24px;background:linear-gradient(180deg,#fff 0 46%,var(--bg) 46%)}
+.login form{width:100%;max-width:380px}
+.login img{height:40px;display:block;margin:0 auto 22px}
+.login h2{text-align:center;font-size:25px;margin:0}
+.login .lead{text-align:center;margin:6px 0 22px}
+.login .box{background:#fff;border-radius:20px;padding:20px;box-shadow:0 18px 40px -26px rgba(0,60,50,.5);display:grid;gap:10px}
+.login label{font-size:13px;font-weight:700;color:var(--sub)}
+
+/* 모달 · 토스트 */
+.ov{position:fixed;inset:0;z-index:30;background:rgba(20,32,35,.5);display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:#fff;width:100%;max-width:520px;max-height:90dvh;overflow:auto;border-radius:22px 22px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(24px);opacity:0}}
+.sheet h3{font-size:19px;font-weight:800;letter-spacing:-.02em;margin-bottom:6px}
+.sheet p{font-size:14.5px;color:var(--sub);margin-bottom:12px;text-wrap:pretty}
+.sheet .stack{display:grid;gap:8px}
+#toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:40;background:var(--ink);color:#fff;font-size:14px;font-weight:600;padding:11px 18px;border-radius:12px;max-width:calc(100% - 40px);text-align:center;text-wrap:balance}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div id="bar" hidden></div>
+<div id="app"></div>
+<div id="toast" hidden role="status"></div>
+
+<script>
+const API_URL = '';
+const RETS = ['18:20', '19:00'];
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const store = { get() { try { return JSON.parse(localStorage.getItem('ets_shuttle')) } catch (e) { return null } },
+                set(v) { try { v ? localStorage.setItem('ets_shuttle', JSON.stringify(v)) : localStorage.removeItem('ets_shuttle') } catch (e) {} } };
+let U = store.get(), PW = '', D = [], PEOPLE = [], tab = 'apply', pick = {}, loaded = false;
+let focus = new URLSearchParams(location.search).get('d');   // 메일·알림 링크로 들어온 운행일
+
+/* ---------- 서버 ---------- */
+async function api(action, data) {
+  if (!API_URL) { toast('서버 연결 준비 중입니다.'); return null; }
+  $('#bar').hidden = false;
+  try {
+    const r = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, cache: 'no-store',
+      body: JSON.stringify({ action, name: U && U.name, last4: U && U.last4, pw: PW, ...data }) });
+    const j = await r.json();
+    if (j.relogin) { U = null; store.set(null); render(); }
+    if (!j.ok) { toast(j.msg || '처리하지 못했습니다.'); return null; }
+    if (j.days) { D = j.days; loaded = true; }
+    return j;
+  } catch (e) { toast('연결이 원활하지 않습니다. 잠시 후 다시 시도해 주세요.'); return null; }
+  finally { $('#bar').hidden = true; }
+}
+let tt;
+function toast(m) { const t = $('#toast'); t.textContent = m; t.hidden = false; clearTimeout(tt); tt = setTimeout(() => t.hidden = true, 3200); }
+
+/* ---------- 화면 ---------- */
+function render() {
+  if (!U) { $('#app').innerHTML = loginView(); return; }
+  $('#app').innerHTML = `<div class="wrap">
+    <header><img src="img/logo.png" alt="ETS"><h1>2공장 셔틀</h1>
+      <div class="who">${esc(U.name)} ${esc(U.pos || '')}<br><button class="link" data-a="logout" style="padding:0">로그아웃</button></div></header>
+    <main>${tab === 'apply' ? applyView() : tab === 'list' ? listView() : guideView()}</main>
+    <footer>문의 경영관리 · 기획·개발 환경안전 양수길 책임 010-3469-2346</footer></div>
+    <nav><div>${[['apply', '신청'], ['list', '탑승 명단'], ['guide', '이용 방법']].map(([k, n]) =>
+      `<button data-a="tab" data-k="${k}" class="${tab === k ? 'on' : ''}">${n}</button>`).join('')}</div></nav>`;
+  if (focus && loaded && tab === 'apply') {
+    const el = document.getElementById('d_' + focus);
+    if (el) { el.classList.add('hl'); el.scrollIntoView({ block: 'center' }); } else toast('해당 운행일은 종료되었거나 삭제되었습니다.');
+    focus = null; history.replaceState(null, '', location.pathname);
+  }
+}
+
+function loginView() {
+  return `<div class="login"><form data-f="login">
+    <img src="img/logo.png" alt="ETS"><h2>2공장 셔틀 신청</h2>
+    <p class="lead">본사 주차 통제일에 2공장에서 본사까지 운행합니다</p>
+    <div class="box">
+      <label for="ln">이름</label><input class="in" id="ln" autocomplete="name" required>
+      <label for="lp">휴대폰 번호 뒷 4자리</label><input class="in" id="lp" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required>
+      <button class="btn">로그인</button>
+    </div>
+    <p class="note" style="text-align:center">다우오피스에 등록된 이름과 휴대폰 번호로 확인합니다</p>
+  </form></div>`;
+}
+
+const mine = d => d.riders.find(r => r.me);
+function applyView() {
+  if (!loaded) return `<div class="empty">${API_URL ? '불러오는 중입니다' : '<b>서버 연결 준비 중입니다</b>곧 이용하실 수 있습니다'}</div>`;
+  if (!D.length) return `<h2>셔틀 신청</h2><div class="empty"><b>등록된 운행일이 없습니다</b>주차 통제일이 정해지면 다우오피스 알림으로 안내됩니다</div>`;
+  return `<h2>셔틀 신청</h2><p class="lead">운행 전날 17시까지 신청합니다<br>퇴근 시간은 당일 17시 10분까지 정하면 됩니다</p>` + D.map(d => {
+    const m = mine(d), p = pick[d.date] ?? '';
+    const st = m ? ['done', '신청 완료'] : d.canApply ? ['', '신청 가능'] : ['end', '신청 마감'];
+    let bot;
+    if (m) bot = `<div class="lbl">퇴근 셔틀 <em>${d.canRet ? '당일 17:10까지 변경 가능' : '변경 마감'}</em></div>
+        <div class="seg">${RETS.map(t => `<button data-a="setRet" data-d="${d.date}" data-t="${t}" class="${m.ret === t ? 'on' : ''}" ${d.canRet ? '' : 'disabled'}>${t}</button>`).join('')}</div>
+        ${!m.ret ? `<p class="note warn">${d.canRet ? '퇴근 시간이 아직 정해지지 않았습니다' : '퇴근 시간 미지정 상태입니다. 경영관리로 연락해 주세요'}</p>` : ''}
+        ${d.canApply ? `<button class="btn ghost" data-a="cancel" data-d="${d.date}">신청 취소</button>` : `<p class="note">변경이 필요하면 경영관리로 연락해 주세요</p>`}
+        <button class="btn ghost" data-a="guide">태깅 위치 보기</button>`;
+    else if (d.canApply) bot = `<div class="lbl">퇴근 셔틀 <em>신청 마감 ${esc(d.applyBy)}</em></div>
+        <div class="seg">${[...RETS, ''].map(t => `<button data-a="pick" data-d="${d.date}" data-t="${t}" class="${p === t ? 'on' : ''}">${t || '나중에 지정'}</button>`).join('')}</div>
+        <button class="btn" data-a="apply" data-d="${d.date}">${esc(d.label)} 셔틀 신청하기</button>`;
+    else bot = `<p class="note">신청이 마감되었습니다. 탑승이 필요하면 경영관리로 연락해 주세요</p>`;
+    return `<article class="tk" id="d_${d.date}"><div class="tk-top">
+        <div class="tk-head"><div class="tk-date">${esc(d.label)}</div><span class="st ${st[0]}">${st[1]}</span></div>
+        <div class="route"><div><b>08:50</b><small>2공장 출발</small></div><div class="track"></div><div class="to"><b>본사</b><small>현재 ${d.riders.length}명 신청</small></div></div>
+      </div><div class="cut"></div><div class="tk-bot">${bot}</div></article>`;
+  }).join('');
+}
+
+function listView() {
+  const chip = (d, r) => PW ? `<button class="chip" data-a="edit" data-d="${d.date}" data-id="${esc(r.id)}">${esc(r.name)}<i>${esc(r.pos)}</i></button>`
+                            : `<span class="chip ${r.me ? 'me' : ''}">${esc(r.name)}<i>${esc(r.pos)}</i></span>`;
+  const grp = (d, title, rs) => `<div class="grp"><div class="grp-h">${title}<span>${rs.length}명</span></div>
+      ${rs.length ? `<div class="chips">${rs.map(r => chip(d, r)).join('')}</div>` : `<div class="none">없음</div>`}</div>`;
+  const today = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
+  return `<h2>탑승 명단</h2><p class="lead">${PW ? '이름을 누르면 퇴근 시간을 바꾸거나 명단에서 뺄 수 있습니다' : '운행일별 탑승자를 누구나 확인할 수 있습니다'}</p>
+    ${PW ? `<div class="adminbar"><span>관리자 모드</span><button data-a="adminOff">종료</button></div>
+      <div class="card"><h3>운행일 등록</h3><p class="note" style="margin:4px 0 10px">등록하면 전 직원에게 운행 안내 알림이 발송됩니다</p>
+      <div class="row"><input type="date" class="in" id="newDay" min="${today}"><button class="sm pri" data-a="addDay" style="flex:0 0 84px">등록</button></div></div>` : ''}
+    ${!D.length ? `<div class="empty"><b>등록된 운행일이 없습니다</b></div>` : D.map(d => `<div class="card">
+      <h3>${esc(d.label)} <small>${d.canApply ? '신청 접수 중' : '신청 마감'}</small></h3>
+      ${grp(d, '출근 08:50 · 2공장 출발', d.riders)}
+      ${RETS.map(t => grp(d, '퇴근 ' + t, d.riders.filter(r => r.ret === t))).join('')}
+      ${grp(d, '퇴근 미지정', d.riders.filter(r => !r.ret))}
+      ${PW ? `<div class="tools">
+        <div class="row"><select class="in" id="p_${d.date}"><option value="">직원 선택</option>${PEOPLE.map(p => `<option value="${esc(p.id)}">${esc(p.name)} ${esc(p.pos)}</option>`).join('')}</select>
+          <button class="sm pri" data-a="adminAdd" data-d="${d.date}" style="flex:0 0 84px">추가</button></div>
+        <div class="row"><button class="sm" data-a="reopen" data-d="${d.date}" data-on="${d.reopen ? '' : '1'}">${d.reopen ? '신청 다시 닫기' : '신청 다시 열기'}</button>
+          <button class="sm red" data-a="delDay" data-d="${d.date}">운행일 삭제</button></div>
+        ${d.reopen ? `<p class="note">출발 전(08:50)까지 신청과 취소가 열려 있습니다</p>` : ''}</div>` : ''}
+    </div>`).join('')}
+    ${PW ? '' : `<p style="text-align:center"><button class="link" data-a="adminOn">관리자 모드</button></p>`}`;
+}
+
+const tagGuide = `<div class="tag">2공장 공장동(본동) 출입구 왼쪽<br>근태 리더기에 출근 태깅을 꼭 해 주세요</div>
+  <div class="shot"><img src="img/guide1.jpg" alt="2공장 항공 사진, 공장동 출입구 위치"><span>① 주차 후 공장동 출입구로</span></div>
+  <div class="two"><div class="shot"><img src="img/guide2.jpg" alt="공장동 출입구"><span>② 이 문으로 입장</span></div>
+  <div class="shot"><img src="img/guide3.jpg" alt="출입구 안 왼쪽 근태 리더기"><span>③ 왼쪽 리더기 태깅</span></div></div>`;
+function guideView() {
+  return `<h2>이용 방법</h2><p class="lead">본사 주차 통제일에만 운행합니다</p>
+  <div class="card"><ol class="steps">
+    <li><b>운행 전날 17시까지 신청</b><p>신청 화면에서 날짜를 확인하고 신청합니다. 월요일 운행분은 토요일 17시에 마감됩니다.</p></li>
+    <li><b>당일 2공장 도착, 출근 태깅</b><p>08시 50분 전에 도착합니다.<br>공장동 출입구 왼쪽 근태 리더기에 태깅합니다.</p></li>
+    <li><b>08시 50분 2공장 출발</b><p>신청자가 모두 모이면 함께 본사로 이동합니다. 1회만 운행합니다.</p></li>
+    <li><b>17시 10분까지 퇴근 시간 지정</b><p>18시 20분, 19시 중에서 고릅니다. 신청할 때 미리 골라도 됩니다.</p></li>
+    <li><b>정한 시간에 본사에서 탑승</b><p>2공장까지 이동합니다.</p></li>
+  </ol></div>
+  <div class="card"><h3 style="margin-bottom:12px">출근 태깅 위치</h3>${tagGuide}</div>
+  <div class="card"><h3 style="margin-bottom:12px">알아 두세요</h3><dl>
+    <dt>신청 마감</dt><dd>운행 전날 17:00 (월요일분은 토요일 17:00)</dd>
+    <dt>퇴근 시간 마감</dt><dd>당일 17:10</dd>
+    <dt>마감 이후</dt><dd>앱에서 변경할 수 없습니다. 경영관리로 연락해 주세요</dd>
+    <dt>알림</dt><dd>전날 17시에 탑승 안내, 당일 16시와 17시에 퇴근 시간 미지정 안내가 다우오피스로 발송됩니다</dd>
+  </dl></div>`;
+}
+
+/* ---------- 모달 ---------- */
+function sheet(html) {
+  closeSheet();
+  const o = document.createElement('div'); o.className = 'ov'; o.id = 'ov';
+  o.innerHTML = `<div class="sheet" role="dialog" aria-modal="true">${html}</div>`;
+  o.addEventListener('click', e => { if (e.target === o) closeSheet(); });
+  document.body.appendChild(o);
+}
+function closeSheet() { const o = $('#ov'); if (o) o.remove(); }
+function ask(title, text, yes, fn) {
+  sheet(`<h3>${title}</h3><p>${text}</p><div class="stack"><button class="btn dark" id="yes" style="margin:0">${yes}</button><button class="btn ghost" data-a="close" style="margin:0">닫기</button></div>`);
+  $('#yes').onclick = () => { closeSheet(); fn(); };
+}
+
+/* ---------- 동작 ---------- */
+const day = d => D.find(x => x.date === d);
+const go = async (action, data, msg) => { const r = await api(action, data); if (r) { if (msg) toast(msg); render(); } return r; };
+const acts = {
+  tab: b => { tab = b.k; render(); scrollTo(0, 0); },
+  logout: () => { U = null; PW = ''; loaded = false; store.set(null); render(); },
+  close: closeSheet,
+  guide: () => sheet(`<h3>출근 태깅 위치</h3><p>08시 50분 전에 2공장에 도착해 태깅 후 탑승합니다</p>${tagGuide}<button class="btn" data-a="close">확인</button>`),
+  pick: b => { pick[b.d] = b.t; render(); },
+  apply: async b => {
+    const r = await go('apply', { date: b.d, ret: pick[b.d] ?? '' });
+    if (r) sheet(`<h3>${esc(day(b.d).label)} 셔틀 신청 완료</h3><p>08시 50분에 2공장에서 출발합니다<br>늦지 않게 도착해 주세요</p>${tagGuide}<button class="btn" data-a="close">확인</button>`);
+  },
+  setRet: b => go('setRet', { date: b.d, ret: b.t }, '퇴근 셔틀 ' + b.t + '로 지정했습니다'),
+  cancel: b => ask('신청을 취소할까요?', esc(day(b.d).label) + ' 셔틀 신청이 취소됩니다', '신청 취소', () => go('cancel', { date: b.d }, '신청을 취소했습니다')),
+  adminOn: () => {
+    sheet(`<form data-f="admin"><h3>관리자 모드</h3><p>비밀번호를 입력하면 운행일 등록과 명단 수정을 할 수 있습니다</p>
+      <input class="in" id="apw" type="password" inputmode="numeric" autocomplete="off" placeholder="비밀번호" required><button class="btn">확인</button></form>`);
+    $('#apw').focus();
+  },
+  adminOff: () => { PW = ''; render(); },
+  addDay: () => { const v = $('#newDay').value; if (!v) return toast('날짜를 선택해 주세요.');
+    ask('운행일을 등록할까요?', v + ' 운행 안내가 전 직원에게 발송됩니다', '등록하고 알림 보내기', () => go('addDay', { date: v }, '운행일을 등록했습니다')); },
+  delDay: b => ask('운행일을 삭제할까요?', esc(day(b.d).label) + ' 신청 내역이 모두 삭제되고 신청자에게 취소 알림이 발송됩니다', '운행일 삭제', () => go('delDay', { date: b.d }, '운행일을 삭제했습니다')),
+  reopen: b => go('reopen', { date: b.d, on: !!b.on }, b.on ? '신청을 다시 열었습니다' : '신청을 닫았습니다'),
+  adminAdd: b => { const id = $('#p_' + b.d).value; if (!id) return toast('직원을 선택해 주세요.'); go('adminSet', { date: b.d, id, ret: '' }, '명단에 추가했습니다'); },
+  edit: b => {
+    const r = day(b.d).riders.find(x => x.id === b.id);
+    sheet(`<h3>${esc(r.name)} ${esc(r.pos)}</h3><p>${esc(day(b.d).label)} · 현재 퇴근 ${r.ret || '미지정'}</p><div class="stack">
+      ${[...RETS, ''].map(t => `<button class="sm ${r.ret === t ? 'pri' : ''}" data-a="adminSet" data-d="${b.d}" data-id="${esc(b.id)}" data-t="${t}">퇴근 ${t || '미지정'}</button>`).join('')}
+      <button class="sm red" data-a="adminDel" data-d="${b.d}" data-id="${esc(b.id)}">명단에서 삭제</button>
+      <button class="btn ghost" data-a="close" style="margin:0">닫기</button></div>`);
+  },
+  adminSet: b => { closeSheet(); go('adminSet', { date: b.d, id: b.id, ret: b.t }, '수정했습니다'); },
+  adminDel: b => { closeSheet(); go('adminDel', { date: b.d, id: b.id }, '명단에서 삭제했습니다'); }
+};
+document.addEventListener('click', e => { const b = e.target.closest('[data-a]'); if (b && acts[b.dataset.a]) acts[b.dataset.a](b.dataset); });
+document.addEventListener('submit', async e => {
+  e.preventDefault();
+  if (e.target.dataset.f === 'login') {
+    U = { name: $('#ln').value.replace(/\s/g, ''), last4: $('#lp').value };
+    const r = await api('login');
+    if (!r) { U = null; return; }
+    U.pos = r.user.pos; store.set(U); render(); refresh();
+  } else {
+    PW = $('#apw').value;
+    const r = await api('adminLogin');
+    if (!r) { PW = ''; return; }
+    const p = await api('people'); PEOPLE = p ? p.people : [];
+    closeSheet(); render();
+  }
+});
+async function refresh() { if (U && API_URL && await api('state')) render(); }
+document.addEventListener('visibilitychange', () => { if (!document.hidden && !$('#ov')) refresh(); });
+render(); refresh();
+</script>
+</body>
+</html>
