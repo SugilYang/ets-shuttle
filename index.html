@@ -173,7 +173,7 @@ function render() {
     <header><img src="img/logo.png" alt="ETS"><h1>2공장 셔틀</h1>
       <div class="who">${esc(U.name)} ${esc(U.pos || '')}<br><button class="link" data-a="logout" style="padding:0">로그아웃</button></div></header>
     <main>${tab === 'apply' ? applyView() : tab === 'list' ? listView() : guideView()}</main>
-    <footer>문의 경영관리 · 기획·개발 환경안전 양수길 책임 010-3469-2346</footer></div>
+    <footer>앱 사용문의 경영관리 양수길 책임 010-3469-2346</footer></div>
     <nav><div>${[['apply', '신청'], ['list', '탑승 명단'], ['guide', '이용 방법']].map(([k, n]) =>
       `<button data-a="tab" data-k="${k}" class="${tab === k ? 'on' : ''}">${n}</button>`).join('')}</div></nav>`;
   if (focus && loaded && tab === 'apply') {
