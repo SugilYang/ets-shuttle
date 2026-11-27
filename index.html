@@ -151,18 +151,18 @@ let U = store.get(), PW = '', D = [], PEOPLE = [], tab = 'apply', pick = {}, loa
 let focus = new URLSearchParams(location.search).get('d');   // 메일·알림 링크로 들어온 운행일
 
 /* ---------- 서버 ---------- */
-async function api(action, data) {
+async function api(action, data, quiet) {
   if (!API_URL) { toast('서버 연결 준비 중입니다.'); return null; }
-  $('#bar').hidden = false;
+  if (!quiet) $('#bar').hidden = false;
   try {
     const r = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, cache: 'no-store',
       body: JSON.stringify({ action, name: U && U.name, last4: U && U.last4, pw: PW, ...data }) });
     const j = await r.json();
     if (j.relogin) { U = null; store.set(null); render(); }
-    if (!j.ok) { toast(j.msg || '처리하지 못했습니다.'); return null; }
+    if (!j.ok) { if (!quiet) toast(j.msg || '처리하지 못했습니다.'); return null; }
     if (j.days) { D = j.days; loaded = true; }
     return j;
-  } catch (e) { toast('연결이 원활하지 않습니다. 잠시 후 다시 시도해 주세요.'); return null; }
+  } catch (e) { if (!quiet) toast('연결이 원활하지 않습니다. 잠시 후 다시 시도해 주세요.'); return null; }
   finally { $('#bar').hidden = true; }
 }
 let tt;
@@ -339,6 +339,15 @@ document.addEventListener('submit', async e => {
 });
 async function refresh() { if (U && API_URL && await api('state')) render(); }
 document.addEventListener('visibilitychange', () => { if (!document.hidden && !$('#ov')) refresh(); });
+// 켜 둔 동안 1분마다 조용히 새로 고침 (입력 중이거나 창이 떠 있으면 건너뜀, 바뀐 것이 있을 때만 다시 그림)
+async function autoRefresh() {
+  const el = document.activeElement, typing = el && /^(INPUT|SELECT)$/.test(el.tagName);
+  const nd = $('#newDay'), filling = (nd && nd.value) || [...document.querySelectorAll('select.in')].some(x => x.value);
+  if (!U || !API_URL || document.hidden || $('#ov') || typing || filling || !$('#bar').hidden) return;
+  const before = JSON.stringify(D);
+  if (await api('state', null, true) && JSON.stringify(D) !== before && !$('#ov')) render();
+}
+setInterval(autoRefresh, 60000);
 render(); refresh();
 </script>
 </body>
